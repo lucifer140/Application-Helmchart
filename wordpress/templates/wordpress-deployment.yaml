@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{- define "wordpress.chart" -}}
+  labels:
+    app: {{ .Values.labels.app }}
+spec:
+  selector:
+    matchLabels:
+      app:  {{ .Values.labels.app }}
+      tier:  {{ .Values.labels.tier }}
+  strategy:
+    type: {{ .Values.strategy.type }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.labels.app }}
+        tier: {{ .Values.labels.tier }}
+    spec:
+      containers:
+      - image: {{ .Values.image.repository }}
+        name: {{ .Values.labels.app }}
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: wordpress-mysql
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret 
+              key: password 
+        ports:
+        - containerPort: {{ .Values.service.port }}
+          name: {{ .Values.service.name}}
+  
